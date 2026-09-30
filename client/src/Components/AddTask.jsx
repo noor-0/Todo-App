@@ -1,13 +1,36 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addTask, updateTask, setEditingTask } from "../Store/taskSlice";
+
+// this dialog is used for both adding a new to-do and editing an existing one
 export default function AddTasks() {
-    const { projectList, setTaskList } = useContext(Context);
+    const dispatch = useDispatch();
+    const { projectList } = useSelector(state => state.projects);
+    const { editingTask, filter } = useSelector(state => state.tasks);
 
     const [title, setTitle] = useState("");
     const [details, setDetails] = useState("");
     const [date, setDate] = useState("");
     const [project, setProject] = useState("");
     const [priority, setPriority] = useState(2);
+    const [error, setError] = useState("");
+    const [saving, setSaving] = useState(false);
+
+    // fill the form when a task's "Edit" button is clicked
+    useEffect(() => {
+        if (editingTask) {
+            setTitle(editingTask.title);
+            setDetails(editingTask.details);
+            setDate(editingTask.date);
+            setProject(editingTask.project || "");
+            setPriority(editingTask.priority);
+        }
+    }, [editingTask]);
 
     function showDialog() {
+        // when a project is open in the sidebar, select it by default
+        const isProjectFilter = projectList.some(p => p._id === filter);
+        setProject(isProjectFilter ? filter : "");
         document.getElementById("addTask").showModal();
     }
 
@@ -15,26 +38,39 @@ export default function AddTasks() {
         document.getElementById("addTask").close();
     }
 
-    function addTask() {
-        const newTask = {
-            id: Date.now(),
-            completed: false,
-            title,
-            details,
-            date,
-            project,
-            priority,
-        };
-
-        setTaskList((prevTasks) => [...prevTasks, newTask]);
-
+    // runs whenever the dialog closes (Save, Cancel or Esc key)
+    function resetForm() {
         setTitle("");
         setDetails("");
         setDate("");
         setProject("");
         setPriority(2);
+        setError("");
+        dispatch(setEditingTask(null));
+    }
 
-        closeDialog();
+    async function saveTask(e) {
+        e.preventDefault();
+
+        if (!title.trim()) {
+            setError("Title is required");
+            return;
+        }
+
+        const task = { title, details, date, project, priority };
+
+        setSaving(true);
+        try {
+            if (editingTask) {
+                await dispatch(updateTask({ _id: editingTask._id, ...task })).unwrap();
+            } else {
+                await dispatch(addTask(task)).unwrap();
+            }
+            closeDialog();
+        } catch (err) {
+            setError(err.message);
+        }
+        setSaving(false);
     }
 
     return (
@@ -42,20 +78,22 @@ export default function AddTasks() {
             <button
                 type="button"
                 onClick={showDialog}
-                className="absolute bottom-10 right-10 flex h-16 w-16 items-center justify-center rounded-full bg-amber-300 text-5xl font-extralight hover:bg-amber-400"
+                title="Add to-do"
+                className="fixed bottom-10 right-10 flex h-16 w-16 items-center justify-center rounded-full bg-amber-300 text-5xl font-extralight shadow-lg hover:bg-amber-400"
             >
                 +
             </button>
 
             <dialog
                 id="addTask"
+                onClose={resetForm}
                 className="m-auto w-100 rounded-xl p-0 shadow-2xl backdrop:bg-black/40"
             >
-                <div className="relative flex flex-col gap-6 p-7">
+                <form onSubmit={saveTask} className="relative flex flex-col gap-6 p-7">
 
                     <div>
                         <h1 className="text-xl font-bold text-gray-900">
-                            Add To-do
+                            {editingTask ? "Edit To-do" : "Add To-do"}
                         </h1>
                     </div>
 
@@ -121,10 +159,10 @@ export default function AddTasks() {
                             onChange={(e) => setProject(e.target.value)}
                             className="rounded-md border border-gray-300 px-3 py-2 outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
                         >
-                            <option key='' value=''>Select project </option>
+                            <option value=''>No project</option>
                             {projectList.map((p) => (
-                                <option key={p} value={p}>
-                                    {p}
+                                <option key={p._id} value={p._id}>
+                                    {p.name}
                                 </option>
                             ))}
                         </select>
@@ -167,6 +205,8 @@ export default function AddTasks() {
                                 Low
                             </label>
                         </div>
+
+                        {error && <p className="text-sm text-red-600">{error}</p>}
                     </div>
 
                     <div className="flex justify-end gap-3">
@@ -179,15 +219,15 @@ export default function AddTasks() {
                         </button>
 
                         <button
-                            type="button"
-                            onClick={addTask}
-                            className="rounded-md bg-amber-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-amber-400"
+                            type="submit"
+                            disabled={saving}
+                            className="rounded-md bg-amber-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-amber-400 disabled:opacity-50"
                         >
-                            Save
+                            {saving ? "Saving..." : "Save"}
                         </button>
                     </div>
 
-                </div>
+                </form>
             </dialog>
         </>
     );
