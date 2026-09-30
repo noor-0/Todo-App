@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/api': 'https://todo-app-0ph3.onrender.com',
+      '/api': 'http://localhost:5000',
     },
   },
 })
