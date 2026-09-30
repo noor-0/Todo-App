@@ -3,7 +3,6 @@ import Task from "./Task";
 import { clearCompleted } from "../Store/taskSlice";
 import { getToday } from "../utils";
 
-// completed last, then by priority (High first), then by date (no date last)
 function sortTasks(a, b) {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
     if (a.priority !== b.priority) return a.priority - b.priority;
@@ -28,7 +27,6 @@ export default function ShowTasks() {
     const selectedProject = projectList.find(p => p._id === filter);
     const today = getToday();
 
-    // 1. pick the tasks for the selected menu item
     let visibleTasks = taskList;
     if (filter === "today") visibleTasks = taskList.filter(t => t.date === today);
     if (filter === "completed") visibleTasks = taskList.filter(t => t.completed);

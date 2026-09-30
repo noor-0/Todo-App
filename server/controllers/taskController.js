@@ -50,7 +50,6 @@ export async function updateTask(req, res) {
         return res.status(400).json({ message: "Project not found" });
     }
 
-    // only change the fields that were sent
     if (title !== undefined) task.title = title;
     if (details !== undefined) task.details = details;
     if (date !== undefined) task.date = date;

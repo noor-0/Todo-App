@@ -27,7 +27,6 @@ export default function LoginPage() {
             } else {
                 await dispatch(login({ email, password })).unwrap();
             }
-            // App.jsx sends the user to "/" once the token is saved
         } catch (err) {
             setError(err.message);
         }

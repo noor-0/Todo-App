@@ -29,8 +29,8 @@ const initialState = {
     taskList: [],
     loading: false,
     error: null,
-    filter: "all", // "all", "today", "completed" or a project id
-    editingTask: null, // task open in the edit dialog
+    filter: "all", 
+    editingTask: null, 
 };
 
 function replaceTask(state, action) {
@@ -57,7 +57,6 @@ const taskSlice = createSlice({
                 state.taskList.push(action.payload);
             })
             .addCase(updateTask.fulfilled, replaceTask)
-            // tick the checkbox right away, then undo it if the server fails
             .addCase(toggleTask.pending, (state, action) => {
                 const task = state.taskList.find(t => t._id === action.meta.arg._id);
                 if (task) task.completed = !action.meta.arg.completed;
@@ -73,14 +72,12 @@ const taskSlice = createSlice({
             .addCase(clearCompleted.fulfilled, (state) => {
                 state.taskList = state.taskList.filter(t => !t.completed);
             })
-            // the server deletes a project's tasks with it, so do the same here
             .addCase(deleteProject.fulfilled, (state, action) => {
                 const projectId = action.payload.id;
                 state.taskList = state.taskList.filter(t => t.project !== projectId);
                 if (state.filter === projectId) state.filter = "all";
             })
             .addCase(logout.fulfilled, () => initialState)
-            // add/update errors are shown inside the task dialog instead
             .addMatcher(
                 isAnyOf(fetchTasks.rejected, toggleTask.rejected, deleteTask.rejected, clearCompleted.rejected),
                 (state, action) => { state.error = action.error.message; }

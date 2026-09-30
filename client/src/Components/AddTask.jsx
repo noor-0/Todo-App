@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addTask, updateTask, setEditingTask } from "../Store/taskSlice";
 
-// this dialog is used for both adding a new to-do and editing an existing one
 export default function AddTasks() {
     const dispatch = useDispatch();
     const { projectList } = useSelector(state => state.projects);
@@ -16,7 +15,6 @@ export default function AddTasks() {
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
 
-    // fill the form when a task's "Edit" button is clicked
     useEffect(() => {
         if (editingTask) {
             setTitle(editingTask.title);
@@ -28,7 +26,6 @@ export default function AddTasks() {
     }, [editingTask]);
 
     function showDialog() {
-        // when a project is open in the sidebar, select it by default
         const isProjectFilter = projectList.some(p => p._id === filter);
         setProject(isProjectFilter ? filter : "");
         document.getElementById("addTask").showModal();
@@ -38,7 +35,6 @@ export default function AddTasks() {
         document.getElementById("addTask").close();
     }
 
-    // runs whenever the dialog closes (Save, Cancel or Esc key)
     function resetForm() {
         setTitle("");
         setDetails("");

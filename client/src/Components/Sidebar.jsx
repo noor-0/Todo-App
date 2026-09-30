@@ -29,7 +29,6 @@ export default function Sidebar() {
             setProjectName("");
             setShowProjectInput(false);
         } catch {
-            // Project errors are handled by the existing HomePage error area.
         }
     }
 
@@ -40,7 +39,6 @@ export default function Sidebar() {
     return (
         <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
 
-            {/* Logo */}
             <div className="border-b border-gray-100 px-6 py-6">
                 <h1 className="text-2xl font-light tracking-tight text-gray-900">
                     To-do
@@ -50,7 +48,6 @@ export default function Sidebar() {
                 </p>
             </div>
 
-            {/* Navigation */}
             <nav className="flex-1 overflow-y-auto px-3 py-5">
 
                 <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
@@ -177,7 +174,6 @@ export default function Sidebar() {
                 </div>
             </nav>
 
-            {/* Bottom user section */}
             <div className="border-t border-gray-100 p-4">
 
                 <div className="mb-3 flex items-center gap-3">
